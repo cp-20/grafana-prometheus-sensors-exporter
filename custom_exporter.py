@@ -2,40 +2,24 @@ import os
 import time
 
 from prometheus_client import start_http_server, Gauge
-import docker
+import sensors
 
-
-DOCKER_CLIENT = docker.from_env()
-
-CONTAINER_CPU_USAGE_PERCENT = Gauge('cpu_usage_percent',
-                                    'CPU usage percentage  of container', ['container_id', 'container_name', 'container_image'])
-CONTAINER_MEMORY_USAGE_BYTES = Gauge('memory_usage_bytes',
-                                     'Memory usage in bytes of container', ['container_id', 'container_name', 'container_image'])
-
+CPU_TEMPERATURE = Gauge('cpu_temperature_celsius', 'CPU temperature (℃)', ['chip', 'core'])
 
 def get_stats():
-    containers = DOCKER_CLIENT.containers.list()
-
-    for container in containers:
-        cstats = container.stats(stream=False)
-
-        container_image = container.attrs["Config"]["Image"].split("@")[0]
-
-        cpu_percent = 0.0
-        cpu_percent += float(cstats["cpu_stats"]["cpu_usage"]["total_usage"]) /\
-            float(cstats["cpu_stats"]["system_cpu_usage"]) * 100.0
-
-        memory_usage = cstats["memory_stats"]["usage"]
-
-        CONTAINER_CPU_USAGE_PERCENT.labels(container.id, container.name,
-                                           container_image).set(cpu_percent)
-        CONTAINER_MEMORY_USAGE_BYTES.labels(container.id, container.name,
-                                            container_image).set(memory_usage)
+    
+    sensors.init()
+    try:
+        for chip in sensors.iter_detected_chips():
+            for feature in chip:
+                CPU_TEMPERATURE.labels(chip, feature.label).set(feature.get_value())
+    finally:
+        sensors.cleanup()
 
 
 if __name__ == '__main__':
     # Start up the server to expose the metrics.
-    start_http_server(8080)
+    start_http_server(os.environ.get('PORT', 9127))
     # Generate some requests.
     while True:
         get_stats()

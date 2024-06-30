@@ -1,27 +1,8 @@
-version: "3.8"
 services:
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - 9090:9090
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - 3000:3000
-    volumes:
-      - ./datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-    depends_on:
-      - prometheus
-  custom_exporter:
+  sensors_exporter:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8080:8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - 9127:9127
     command: python custom_exporter.py

@@ -1,12 +1,17 @@
 # grafana-prometheus-custom-exporter
-A Custom exporter that exports docker metrics for cpu and memory
+A custom exporter that exports CPU temperature and so
+
 
 ## Requirements
-* docker
-* docker-compose
+- Docker
+- lm-sensors
+
 ## To Run
 `docker-compose up -d`
-* The custom exporter runs on :8080 (`curl -X GET http://localhost:8080/metrics`)
-* Grafana runs on port :3000 (Use admin/admin as the username/pwd for first login). Prometheus(`:9090`) is automatically configured as a datasource for grafana
+* The custom exporter runs on :9127 (`curl -X GET http://localhost:9127/metrics`)
+
 ## To stop
 `docker-compose down -v`
+
+## Acknowledgements
+This repo is forked from [shashanklmurthy/grafana-prometheus-custom-exporter](https://github.com/shashanklmurthy/grafana-prometheus-custom-exporter).
