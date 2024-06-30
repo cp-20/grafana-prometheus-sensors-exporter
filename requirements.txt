@@ -1,2 +1,2 @@
 prometheus-client==0.15.0
-PySensors=0.0.4
+PySensors==0.0.4
